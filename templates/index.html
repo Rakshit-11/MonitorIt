@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Activity Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            text-align: center;
+        }
+        .filter-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        input, select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>System Activity Logs</h2>
+
+    <!-- Search and Filter Section -->
+    <div class="filter-container">
+        <input type="date" id="dateFilter" onchange="filterLogs()">
+        <select id="categoryFilter" onchange="filterLogs()">
+            <option value="">All Categories</option>
+            <option value="LOGIN">Login</option>
+            <option value="BROWSING">Browsing</option>
+            <option value="NEW PROCESSES">New Processes</option>
+        </select>
+        <input type="text" id="searchBox" placeholder="Search..." onkeyup="filterLogs()">
+    </div>
+
+    <!-- Table -->
+    <table id="logTable">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Event Type</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody id="logTableBody">
+            {% for log in logs %}
+            <tr>
+                <td>{{ log[0] }}</td>
+                <td>{{ log[1] }}</td>
+                <td>{{ log[2] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function filterLogs() {
+            let dateFilter = document.getElementById("dateFilter").value;
+            let categoryFilter = document.getElementById("categoryFilter").value.toLowerCase();
+            let searchQuery = document.getElementById("searchBox").value.toLowerCase();
+            
+            let table = document.getElementById("logTableBody");
+            let rows = table.getElementsByTagName("tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                let timestamp = rows[i].getElementsByTagName("td")[0].textContent || rows[i].getElementsByTagName("td")[0].innerText;
+                let category = rows[i].getElementsByTagName("td")[1].textContent || rows[i].getElementsByTagName("td")[1].innerText;
+                let details = rows[i].getElementsByTagName("td")[2].textContent || rows[i].getElementsByTagName("td")[2].innerText;
+
+                let showRow = true;
+
+                // Date Filter
+                if (dateFilter && !timestamp.startsWith(dateFilter)) {
+                    showRow = false;
+                }
+
+                // Category Filter
+                if (categoryFilter && category.toLowerCase() !== categoryFilter) {
+                    showRow = false;
+                }
+
+                // Search Box Filter (matches timestamp, category, or details)
+                if (searchQuery && !(timestamp.toLowerCase().includes(searchQuery) || category.toLowerCase().includes(searchQuery) || details.toLowerCase().includes(searchQuery))) {
+                    showRow = false;
+                }
+
+                rows[i].style.display = showRow ? "" : "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
